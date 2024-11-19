@@ -1,6 +1,7 @@
 ﻿using ComputerApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ComputerApi.Controllers
 {
@@ -30,7 +31,29 @@ namespace ComputerApi.Controllers
                 await computerContext.SaveChangesAsync();
                 return StatusCode(201, os);
             }
-            return BadRequest();
+            return BadRequest();    
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<OSystem>> Get()
+        {
+            return Ok(await computerContext.Os.ToListAsync());
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<OSystem>> Put(Guid Id, CreateOsDto createOsDto)
+        {
+            var existingOs = await computerContext.Os.FindAsync(Id);
+            if (existingOs == null)
+            {
+                return NotFound();
+            }
+
+            existingOs.Name = createOsDto.Name;
+            existingOs.CreatedTime = DateTime.Now;
+            computerContext.Os.Update(existingOs);
+            await computerContext.SaveChangesAsync();
+            return Ok(existingOs);
         }
     }
 }
