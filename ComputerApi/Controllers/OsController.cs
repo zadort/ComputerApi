@@ -40,7 +40,18 @@ namespace ComputerApi.Controllers
             return Ok(await computerContext.Os.ToListAsync());
         }
 
-        [HttpPut]
+        [HttpGet]
+        public async Task<ActionResult<OSystem>> GetById(Guid id)
+        {
+            var os = await computerContext.Os.FirstOrDefaultAsync(o => o.Id == id);
+            if (os != null)
+            {
+                return Ok(os);
+            }
+            return NotFound(new {message = "Nincs találat."});
+        }
+
+        [HttpPut("{id}")]
         public async Task<ActionResult<OSystem>> Put(Guid Id, CreateOsDto createOsDto)
         {
             var existingOs = await computerContext.Os.FindAsync(Id);
