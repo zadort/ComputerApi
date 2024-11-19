@@ -52,19 +52,17 @@ namespace ComputerApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<OSystem>> Put(Guid Id, CreateOsDto createOsDto)
+        public async Task<ActionResult<OSystem>> Put(UpdateOsDto updateOsDto, Guid id)
         {
-            var existingOs = await computerContext.Os.FindAsync(Id);
-            if (existingOs == null)
+            var existingOs = await computerContext.Os.FirstOrDefaultAsync(o => o.Id == id);
+            if (existingOs != null)
             {
-                return NotFound();
+                existingOs.Name = updateOsDto.Name;
+                computerContext.Os.Update(existingOs);
+                await computerContext.SaveChangesAsync();
+                return Ok(existingOs);
             }
-
-            existingOs.Name = createOsDto.Name;
-            existingOs.CreatedTime = DateTime.Now;
-            computerContext.Os.Update(existingOs);
-            await computerContext.SaveChangesAsync();
-            return Ok(existingOs);
+            return NotFound(new { message = "Nincs találat" });
         }
     }
 }
